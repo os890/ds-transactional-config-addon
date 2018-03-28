@@ -68,7 +68,6 @@ public class SnapshotAwareDataSource implements ConfigSource {
         while (configSourceIterator.hasNext()) {
             if (configSourceIterator.next() instanceof SnapshotAwareDataSource) {
                 configSourceIterator.remove();
-                break;
             }
         }
 
