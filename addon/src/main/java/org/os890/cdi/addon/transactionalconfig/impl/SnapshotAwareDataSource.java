@@ -45,6 +45,9 @@ public class SnapshotAwareDataSource implements ConfigSource {
     public static void end() {
         TX_CONFIG.set(null);
         TX_CONFIG.remove();
+
+        TX_PER_REQUEST.set(null);
+        TX_PER_REQUEST.remove();
     }
 
     private static Map<String, String> currentConfigSnapshot() {
