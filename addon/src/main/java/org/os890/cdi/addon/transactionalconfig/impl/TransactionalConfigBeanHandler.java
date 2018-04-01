@@ -56,7 +56,7 @@ public class TransactionalConfigBeanHandler implements InvocationHandler {
             if (ConfigTransactionAware.class.isAssignableFrom(proxy.getClass())) {
                 if (!transactionStateHolder.isTransactionStarted()) {
                     transactionStateHolder.markTransactionAsStarted();
-                    SnapshotAwareDataSource.begin(true);
+                    SnapshotAwareDataSource.begin(true, true);
                 }
             }
         }

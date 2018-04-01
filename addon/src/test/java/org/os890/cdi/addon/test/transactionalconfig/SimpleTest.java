@@ -75,7 +75,7 @@ public class SimpleTest {
     @Test
     public void simulateConfigTransactionInterceptor() throws Exception {
         contextControl.stopContext(RequestScoped.class); //to ensure that the fallback handling isn't used
-        SnapshotAwareDataSource.begin(false); //this would be in an interceptor
+        SnapshotAwareDataSource.begin(false, true); //this would be in an interceptor
 
         String firstValue;
 
@@ -86,7 +86,7 @@ public class SimpleTest {
 
         SnapshotAwareDataSource.end(); //this would be in an interceptor
 
-        SnapshotAwareDataSource.begin(false); //this would be in an interceptor
+        SnapshotAwareDataSource.begin(false, true); //this would be in an interceptor
 
         Assert.assertNotEquals(firstValue, simpleConfig.random());
 
