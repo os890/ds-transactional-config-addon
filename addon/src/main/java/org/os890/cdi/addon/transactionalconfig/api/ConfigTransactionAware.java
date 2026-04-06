@@ -16,7 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.api;
 
+/**
+ * Marker interface for configuration beans that participate in
+ * configuration transactions. Extends {@link AutoCloseable} to
+ * support try-with-resources for transaction scoping.
+ */
 public interface ConfigTransactionAware extends AutoCloseable {
+
 }

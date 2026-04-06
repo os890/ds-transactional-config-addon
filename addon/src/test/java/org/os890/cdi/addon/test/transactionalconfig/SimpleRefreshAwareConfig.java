@@ -16,14 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.test.transactionalconfig;
 
 import org.os890.cdi.addon.transactionalconfig.api.RefreshAware;
 import org.os890.cdi.addon.transactionalconfig.api.TransactionalConfig;
 
+/**
+ * Test configuration interface with refresh support.
+ */
 @TransactionalConfig
 public interface SimpleRefreshAwareConfig extends RefreshAware {
+
+    /**
+     * Returns the value for key "value1".
+     *
+     * @return the value1 string
+     */
     String value1();
 
+    /**
+     * Returns the value for key "value2".
+     *
+     * @return the value2 integer
+     */
     Integer value2();
 }

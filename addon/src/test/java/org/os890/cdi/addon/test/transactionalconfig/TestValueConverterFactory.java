@@ -16,12 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.test.transactionalconfig;
 
 import org.os890.cdi.addon.transactionalconfig.spi.ConverterFactory;
 import org.os890.cdi.addon.transactionalconfig.spi.ValueConverter;
 
+/**
+ * Test converter factory handling String and Integer types.
+ */
+@SuppressWarnings("unchecked")
 public class TestValueConverterFactory implements ConverterFactory {
+
     @Override
     public boolean isResponsibleFor(Class<?> targetType) {
         return String.class.isAssignableFrom(targetType) || Integer.class.isAssignableFrom(targetType);
@@ -30,19 +36,9 @@ public class TestValueConverterFactory implements ConverterFactory {
     @Override
     public <T> ValueConverter<T> createConverter(Class<T> targetType) {
         if (String.class.isAssignableFrom(targetType)) {
-            return (ValueConverter<T>) new ValueConverter<String>() {
-                @Override
-                public String convert(String value) {
-                    return value;
-                }
-            };
+            return (ValueConverter<T>) (ValueConverter<String>) value -> value;
         } else if (Integer.class.isAssignableFrom(targetType)) {
-            return (ValueConverter<T>) new ValueConverter<Integer>() {
-                @Override
-                public Integer convert(String value) {
-                    return Integer.parseInt(value);
-                }
-            };
+            return (ValueConverter<T>) (ValueConverter<Integer>) Integer::parseInt;
         }
         throw new IllegalArgumentException(targetType + " isn't supported");
     }

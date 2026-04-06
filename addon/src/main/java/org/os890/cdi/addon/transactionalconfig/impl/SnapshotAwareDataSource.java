@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.impl;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -23,22 +24,55 @@ import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.spi.config.ConfigSource;
 import org.os890.cdi.addon.transactionalconfig.api.SnapshotAwareConfigSource;
 
-import javax.enterprise.context.Dependent;
-import java.util.*;
+import jakarta.enterprise.context.Dependent;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * A {@link ConfigSource} that provides a thread-local, immutable snapshot of
+ * all configuration values for the duration of a configuration transaction.
+ *
+ * <p>During a transaction, this source has the highest ordinal
+ * ({@link Integer#MAX_VALUE}) so it overrides all other sources.</p>
+ */
 @Dependent
 public class SnapshotAwareDataSource implements ConfigSource {
+
     private static final ThreadLocal<Map<String, String>> TX_CONFIG = new ThreadLocal<>();
     private static final ThreadLocal<Boolean> TX_PER_REQUEST = new ThreadLocal<>();
 
+    /**
+     * Checks whether a configuration transaction is currently active on this thread.
+     *
+     * @return {@code true} if a transaction is active
+     */
     public static boolean isConfigTransactionStarted() {
         return TX_CONFIG.get() != null;
     }
 
+    /**
+     * Checks whether the current configuration transaction was started per-request.
+     *
+     * @return {@code true} if started per-request
+     */
     public static boolean isConfigTransactionStartedPerRequest() {
         return Boolean.TRUE.equals(TX_PER_REQUEST.get());
     }
 
+    /**
+     * Begins a configuration transaction by creating a snapshot of all config sources.
+     *
+     * @param isStartedForRequest           whether the transaction is per-request scoped
+     * @param limitToPartialBeanConfigKeys  whether to limit non-scannable source queries
+     *                                      to known partial-bean config keys
+     */
     public static void begin(boolean isStartedForRequest, boolean limitToPartialBeanConfigKeys) {
         for (int i = 0; i < 5; i++) { //max. 5 retries
             TX_CONFIG.set(createConfigSnapshot(limitToPartialBeanConfigKeys));
@@ -50,6 +84,9 @@ public class SnapshotAwareDataSource implements ConfigSource {
         TX_PER_REQUEST.set(isStartedForRequest);
     }
 
+    /**
+     * Ends the current configuration transaction and cleans up thread-local state.
+     */
     public static void end() {
         TX_CONFIG.set(null);
         TX_CONFIG.remove();
@@ -102,7 +139,8 @@ public class SnapshotAwareDataSource implements ConfigSource {
         }
 
         if (limitToPartialBeanConfigKeys) {
-            ConfigKeyCollectorExtension configKeyCollectorExtension = BeanProvider.getContextualReference(ConfigKeyCollectorExtension.class);
+            ConfigKeyCollectorExtension configKeyCollectorExtension =
+                    BeanProvider.getContextualReference(ConfigKeyCollectorExtension.class);
 
             for (String configKey : configKeyCollectorExtension.getConfigKeys()) {
                 for (ConfigSource configSource : manualQueryConfigSources) {
@@ -126,9 +164,6 @@ public class SnapshotAwareDataSource implements ConfigSource {
 
     private static List<ConfigSource> sortAscending(List<ConfigSource> configSources) {
         Collections.sort(configSources, new Comparator<ConfigSource>() {
-            /**
-             * {@inheritDoc}
-             */
             @Override
             public int compare(ConfigSource configSource1, ConfigSource configSource2) {
                 return (configSource1.getOrdinal() > configSource2.getOrdinal()) ? 1 : -1;

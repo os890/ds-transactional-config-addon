@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.api;
 
 import org.apache.deltaspike.partialbean.api.PartialBeanBinding;
@@ -26,6 +27,14 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * Partial-bean binding annotation for configuration interfaces.
+ *
+ * <p>Annotate an interface with {@code @TransactionalConfig} together with
+ * {@link ConfigTransactionAware} or {@link RefreshAware} to create a
+ * type-safe, transactional configuration bean backed by DeltaSpike
+ * config sources.</p>
+ */
 @PartialBeanBinding
 
 @Retention(RUNTIME)

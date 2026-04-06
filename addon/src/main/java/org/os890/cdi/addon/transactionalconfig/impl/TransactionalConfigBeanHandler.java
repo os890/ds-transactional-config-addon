@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.impl;
 
 import org.apache.deltaspike.core.api.config.ConfigResolver;
@@ -27,21 +28,32 @@ import org.os890.cdi.addon.transactionalconfig.api.TransactionalConfig;
 import org.os890.cdi.addon.transactionalconfig.spi.ConverterFactory;
 import org.os890.cdi.addon.transactionalconfig.spi.ValueConverter;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Partial-bean handler that implements the method invocations on
+ * {@link TransactionalConfig}-annotated interfaces.
+ *
+ * <p>Handles transaction lifecycle (begin, end, refresh) and delegates
+ * property lookups to DeltaSpike's {@link ConfigResolver}, converting
+ * values via the {@link ConverterFactory} SPI.</p>
+ */
 @ApplicationScoped
 @TransactionalConfig
 public class TransactionalConfigBeanHandler implements InvocationHandler {
+
     @Inject
     private TransactionStateHolder transactionStateHolder;
 
-    private Map<Class, ValueConverter> converterCache = new HashMap<Class, ValueConverter>();
+    private Map<Class<?>, ValueConverter<?>> converterCache = new HashMap<>();
 
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (RefreshAware.class.equals(method.getDeclaringClass())) {
             if (!SnapshotAwareDataSource.isConfigTransactionStartedPerRequest()) {
@@ -77,7 +89,7 @@ public class TransactionalConfigBeanHandler implements InvocationHandler {
 
         final Class<?> targetType = method.getReturnType();
 
-        ValueConverter valueConverter = converterCache.get(targetType);
+        ValueConverter<?> valueConverter = converterCache.get(targetType);
 
         if (valueConverter == null) {
             valueConverter = createValueConverter(targetType);
@@ -89,8 +101,8 @@ public class TransactionalConfigBeanHandler implements InvocationHandler {
         return null;
     }
 
-    private synchronized ValueConverter createValueConverter(Class<?> targetType) {
-        ValueConverter valueConverter = converterCache.get(targetType);
+    private synchronized ValueConverter<?> createValueConverter(Class<?> targetType) {
+        ValueConverter<?> valueConverter = converterCache.get(targetType);
 
         if (valueConverter != null) {
             return valueConverter;

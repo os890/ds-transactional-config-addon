@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.test.transactionalconfig;
 
 import org.apache.deltaspike.core.spi.config.ConfigSource;
@@ -24,7 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Test config source that returns a random UUID for the "random" key,
+ * used to verify that snapshot transactions freeze values.
+ */
 public class RandomConfigSource implements ConfigSource {
+
     @Override
     public int getOrdinal() {
         return 1;

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.impl;
 
 import org.apache.deltaspike.core.spi.config.ConfigSource;
@@ -24,7 +25,12 @@ import org.apache.deltaspike.core.spi.config.ConfigSourceProvider;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * SPI provider that registers the {@link SnapshotAwareDataSource}
+ * as a DeltaSpike {@link ConfigSource}.
+ */
 public class SnapshotAwareDataSourceProvider implements ConfigSourceProvider {
+
     @Override
     public List<ConfigSource> getConfigSources() {
         return Arrays.<ConfigSource>asList(new SnapshotAwareDataSource());

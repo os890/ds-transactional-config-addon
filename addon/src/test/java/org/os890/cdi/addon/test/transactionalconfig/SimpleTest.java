@@ -16,79 +16,79 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.test.transactionalconfig;
 
-import org.apache.deltaspike.cdise.api.ContextControl;
-import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.os890.cdi.addon.transactionalconfig.impl.SnapshotAwareDataSource;
+import jakarta.inject.Inject;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.os890.cdi.addon.dynamictestbean.EnableTestBeans;
+import org.os890.cdi.addon.transactionalconfig.impl.SnapshotAwareDataSource;
 
 import static java.lang.Integer.valueOf;
 
-@RunWith(CdiTestRunner.class)
-public class SimpleTest {
+/**
+ * Integration tests for the transactional config addon using
+ * the dynamic-cdi-test-bean-addon.
+ */
+@EnableTestBeans
+class SimpleTest {
+
     @Inject
     private SimpleConfig simpleConfig;
 
     @Inject
     private SimpleRefreshAwareConfig simpleResetAwareConfig;
-    @Inject
-    private ContextControl contextControl;
 
     @Test
-    public void implicitConfigTransaction() throws Exception {
-        Assert.assertEquals("val 1", simpleConfig.value1());
-        Assert.assertEquals(valueOf(2), simpleConfig.value2());
+    void implicitConfigTransaction() throws Exception {
+        Assertions.assertEquals("val 1", simpleConfig.value1());
+        Assertions.assertEquals(valueOf(2), simpleConfig.value2());
     }
 
     @Test
-    public void resetAwareSimpleConfigValues() {
+    void resetAwareSimpleConfigValues() {
         String firstValue = simpleConfig.random();
-        Assert.assertEquals(firstValue, simpleConfig.random());
+        Assertions.assertEquals(firstValue, simpleConfig.random());
 
         simpleResetAwareConfig.refresh();
 
-        Assert.assertNotEquals(firstValue, simpleConfig.random());
+        Assertions.assertNotEquals(firstValue, simpleConfig.random());
     }
 
     @Test
-    public void stableConfigWithTransaction() throws Exception {
+    void stableConfigWithTransaction() throws Exception {
         String firstValue;
 
         try (SimpleConfig txConfig = simpleConfig) {
             firstValue = txConfig.random();
-            Assert.assertEquals(firstValue, txConfig.random());
-            Assert.assertEquals(firstValue, txConfig.random());
-            Assert.assertEquals(firstValue, txConfig.random());
+            Assertions.assertEquals(firstValue, txConfig.random());
+            Assertions.assertEquals(firstValue, txConfig.random());
+            Assertions.assertEquals(firstValue, txConfig.random());
         }
 
         try (SimpleConfig txConfig = simpleConfig) {
-            Assert.assertNotEquals(firstValue, txConfig.random());
+            Assertions.assertNotEquals(firstValue, txConfig.random());
         }
     }
 
     @Test
-    public void simulateConfigTransactionInterceptor() throws Exception {
-        contextControl.stopContext(RequestScoped.class); //to ensure that the fallback handling isn't used
+    void simulateConfigTransactionInterceptor() throws Exception {
         SnapshotAwareDataSource.begin(false, true); //this would be in an interceptor
 
         String firstValue;
 
         firstValue = simpleConfig.random();
-        Assert.assertEquals(firstValue, simpleConfig.random());
-        Assert.assertEquals(firstValue, simpleConfig.random());
-        Assert.assertEquals(firstValue, simpleConfig.random());
+        Assertions.assertEquals(firstValue, simpleConfig.random());
+        Assertions.assertEquals(firstValue, simpleConfig.random());
+        Assertions.assertEquals(firstValue, simpleConfig.random());
 
         SnapshotAwareDataSource.end(); //this would be in an interceptor
 
         SnapshotAwareDataSource.begin(false, true); //this would be in an interceptor
 
-        Assert.assertNotEquals(firstValue, simpleConfig.random());
+        Assertions.assertNotEquals(firstValue, simpleConfig.random());
 
         SnapshotAwareDataSource.end(); //this would be in an interceptor
     }

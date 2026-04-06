@@ -16,12 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.spi;
 
 import org.apache.deltaspike.core.spi.activation.Deactivatable;
 
+/**
+ * SPI for creating {@link ValueConverter} instances for specific target types.
+ *
+ * <p>Implementations are loaded via {@link java.util.ServiceLoader} and can
+ * be deactivated via DeltaSpike's class deactivation mechanism.</p>
+ */
 public interface ConverterFactory extends Deactivatable {
+
+    /**
+     * Checks whether this factory can create a converter for the given type.
+     *
+     * @param targetType the target type to check
+     * @return {@code true} if this factory handles the type
+     */
     boolean isResponsibleFor(Class<?> targetType);
 
+    /**
+     * Creates a converter for the given target type.
+     *
+     * @param targetType the type to convert to
+     * @param <T>        the target type
+     * @return a value converter, or {@code null} if none could be created
+     */
     <T> ValueConverter<T> createConverter(Class<T> targetType);
 }

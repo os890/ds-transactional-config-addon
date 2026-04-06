@@ -16,16 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.test.transactionalconfig;
 
 import org.os890.cdi.addon.transactionalconfig.api.ConfigTransactionAware;
 import org.os890.cdi.addon.transactionalconfig.api.TransactionalConfig;
 
+/**
+ * Test configuration interface with three config properties.
+ */
 @TransactionalConfig
 public interface SimpleConfig extends ConfigTransactionAware {
+
+    /**
+     * Returns the value for key "value1".
+     *
+     * @return the value1 string
+     */
     String value1();
 
+    /**
+     * Returns the value for key "value2".
+     *
+     * @return the value2 integer
+     */
     Integer value2();
 
+    /**
+     * Returns the value for key "random" (UUID from RandomConfigSource).
+     *
+     * @return a random string
+     */
     String random();
 }

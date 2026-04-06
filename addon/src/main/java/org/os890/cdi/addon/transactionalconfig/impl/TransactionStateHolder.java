@@ -16,30 +16,55 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.impl;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.RequestScoped;
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.RequestScoped;
 
+/**
+ * Request-scoped holder for configuration transaction state.
+ *
+ * <p>Only used if there is no interceptor which controls
+ * {@link SnapshotAwareDataSource} directly. Needed to avoid leaks with
+ * thread-locals. Optional (in case there is an interceptor) to keep the
+ * request-scope optional.</p>
+ */
 //only used if there is no interceptor which controls SnapshotAwareDataSource directly
 //needed to avoid leaks with thread-locals
 //optional (in case there is an interceptor) to keep the request-scope optional
 @RequestScoped
 public class TransactionStateHolder {
+
     private boolean txStarted = false;
 
+    /**
+     * Marks the configuration transaction as started.
+     */
     public void markTransactionAsStarted() {
         txStarted = true;
     }
 
+    /**
+     * Marks the configuration transaction as finished.
+     */
     public void markTransactionAsFinished() {
         txStarted = false;
     }
 
+    /**
+     * Returns whether a configuration transaction is currently active.
+     *
+     * @return {@code true} if a transaction is active
+     */
     public boolean isTransactionStarted() {
         return txStarted;
     }
 
+    /**
+     * Cleans up the transaction on request scope destruction to prevent
+     * thread-local leaks when no try-block is used.
+     */
     @PreDestroy
     protected void cleanupTransaction() { //just needed to end the transaction in case no try-block is used
         if (txStarted) {

@@ -16,8 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.spi;
 
+/**
+ * Converts a string configuration value to the desired target type.
+ *
+ * @param <T> the target type
+ */
 public interface ValueConverter<T> {
+
+    /**
+     * Converts the given string value to the target type.
+     *
+     * @param value the string value to convert
+     * @return the converted value
+     */
     T convert(String value);
 }

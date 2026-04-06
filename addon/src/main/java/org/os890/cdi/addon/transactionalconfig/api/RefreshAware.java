@@ -16,9 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.os890.cdi.addon.transactionalconfig.api;
 
+/**
+ * Optional extension of {@link ConfigTransactionAware} that adds a
+ * {@link #refresh()} method to reload the configuration snapshot
+ * within an active transaction.
+ */
 //optional
 public interface RefreshAware extends ConfigTransactionAware {
+
+    /**
+     * Refreshes the configuration snapshot, discarding the current
+     * cached values and re-reading from the underlying config sources.
+     */
     void refresh();
 }
